@@ -1,6 +1,6 @@
 import { Router } from "express";
 import db from "../db/db.mjs";
-import { body, param, query, validationResult } from "express-validator";
+import { validationResult, query, param } from "express-validator";
 import {
   valiadteId,
   valiadteName,
@@ -17,9 +17,8 @@ userRouter.get("/get-all", async (_, res) => {
     : res.status(500).json({ message: "no data found", success: false });
 });
 
-userRouter.get("/get-all/by-id", valiadteId, async (req, res) => {
+userRouter.get("/get-user/by-id", valiadteId, async (req, res) => {
   const validationResults = validationResult(req);
-  console.log(validationResults.array());
   if (validationResults.array().length === 0) {
     const Id = Number(req.query.id);
     const user = await db.user.findUnique({ where: { Id: Id } });
@@ -61,16 +60,22 @@ userRouter.get("/login", valiadteName, valiadtePassword, async (req, res) => {
   }
 });
 
-userRouter.put("/update/by-id/:id", validateParramId, async (req, res) => {
-  const validationResults = validationResult(req);
-  if (validationResults.array().length === 0) {
-    const Id = Number(req.params.id);
-    const resp = await db.user.update({ where: { Id: Id }, data: req.body });
-    res.status(200).json({ data: resp, success: true });
-  } else {
-    res.status(500).json({ message: "can't update", success: false });
+userRouter.put(
+  "/update/by-id/:id",
+  validateParramId,
+  valiadteName,
+  valiadtePassword,
+  async (req, res) => {
+    const validationResults = validationResult(req);
+    if (validationResults.array().length === 0) {
+      const Id = Number(req.params.id);
+      const resp = await db.user.update({ where: { Id: Id }, data: req.body });
+      res.status(200).json({ data: resp, success: true });
+    } else {
+      res.status(500).json({ message: "can't update", success: false });
+    }
   }
-});
+);
 
 userRouter.delete("/delete/by-id/:id", validateParramId, async (req, res) => {
   const validationResults = validationResult(req);

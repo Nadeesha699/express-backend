@@ -20,6 +20,12 @@ export const valiadteId = query("id")
 
 export const validateParramId = param("id")
   .notEmpty()
-  .withMessage("can't empty")
-  .isAlpha()
-  .withMessage("can't add letter of id");
+  .withMessage("cannot empty")
+  .isNumeric()
+  .withMessage("only add nubmer");
+
+ export const valiadteBodyId =  body("UserId")
+    .notEmpty()
+    .withMessage("can't empty")
+    .isNumeric()
+    .withMessage("can't add letter")
