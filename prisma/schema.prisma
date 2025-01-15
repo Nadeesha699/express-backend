@@ -25,7 +25,7 @@ model User {
 model Product {
   Id       Int      @id @default(autoincrement())
   Name     String
-  User     User     @relation(references: [Id], fields: [UserId])
+  User     User     @relation(references: [Id], fields: [UserId],onDelete: Cascade)
   UserId   Int
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt

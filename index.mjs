@@ -6,5 +6,5 @@ const server = express();
 server.use(express.json());
 server.use("/api", rootRouter);
 server.listen(4002, () => {
-  console.log("running");
+  console.log("running....");
 });

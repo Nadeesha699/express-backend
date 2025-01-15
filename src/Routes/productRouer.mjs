@@ -38,7 +38,7 @@ productRouter.get("/get-all/by-id/:id", validateParramId, async (req, res) => {
     const resp = await db.product.findMany({ where: { UserId: Id } });
     res.status(200).json({ data: resp, success: true });
   } else {
-    res.status(500).json({ message: "can;t found", success: false });
+    res.status(500).json({ message: "can't found", success: false });
   }
 });
 
@@ -48,28 +48,31 @@ productRouter.put(
   valiadteName,
   valiadteBodyId,
   async (req, res) => {
-    const validationResults = validationResult(req);
-    if (validationResults.array().length === 0) {
-      const Id = Number(req.params.pid);
-      const resp = await db.product.update({
-        where: { Id: Id },
-        data: req.body,
-      });
-      res.status(200).json({ data: resp, success: true });
-    } else {
-      res.status(500).json({ message: "can't update", success: false });
-    }
+    try {
+      const validationResults = validationResult(req);
+      if (validationResults.array().length === 0) {
+        const Id = Number(req.params.id);
+        const resp = await db.product.update({
+          where: { Id: Id },
+          data: req.body,
+        });
+        res.status(200).json({ data: resp, success: true });
+      } else {
+        res.status(500).json({ message: "can't update", success: false });
+      }
+    } catch (error) {}
+    res.status(500).json({ message: "can't update", success: false });
   }
 );
 
 productRouter.delete(
-  "/delete/by-id/:id",
+  "/delete/by-id/:id/",
   validateParramId,
   async (req, res) => {
     const validationResults = validationResult(req);
     if (validationResults.array().length === 0) {
       const Id = Number(req.params.id);
-      const resp = await db.product.delete({ where: { UserId: Id } });
+      const resp = await db.product.deleteMany({ where: { UserId: Id } });
       res.status(200).json({ data: resp, success: true });
     } else {
       res.status(500).json({ message: "not delete", success: false });
