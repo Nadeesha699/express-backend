@@ -5,6 +5,6 @@ import productRouter from "./productRouer.mjs";
 const rootRouter = Router();
 
 rootRouter.use("/user", userRouter);
-rootRouter.use('/product',productRouter)
+rootRouter.use("/product", productRouter);
 
-export default rootRouter
+export default rootRouter;

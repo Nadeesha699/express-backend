@@ -1,12 +1,16 @@
-import { Router } from "express";
+import { json, query, Router } from "express";
 import db from "../db/db.mjs";
-import { validationResult, query, param } from "express-validator";
+import { validationResult } from "express-validator";
 import {
-  valiadteId,
-  valiadteName,
-  valiadtePassword,
+  validateQueryId,
+  validateBodyUserName,
+  validateBodyName,
+  validateBodyPassword,
   validateParramId,
+  validateQueryUserName,
+  validateQueryPassword,
 } from "../validators/validators.mjs";
+import { tokenGenerator, verifyToken } from "../Auth/JWT.mjs";
 
 const userRouter = Router();
 
@@ -17,7 +21,7 @@ userRouter.get("/get-all", async (_, res) => {
     : res.status(500).json({ message: "no data found", success: false });
 });
 
-userRouter.get("/get-user/by-id", valiadteId, async (req, res) => {
+userRouter.get("/get-user/by-id", validateQueryId, async (req, res) => {
   const validationResults = validationResult(req);
   if (validationResults.array().length === 0) {
     const Id = Number(req.query.id);
@@ -30,8 +34,9 @@ userRouter.get("/get-user/by-id", valiadteId, async (req, res) => {
 
 userRouter.post(
   "/register",
-  valiadteName,
-  valiadtePassword,
+  validateBodyUserName,
+  validateBodyName,
+  validateBodyPassword,
   // body("Password")
   //   .notEmpty()
   //   .withMessage("cannot empty")
@@ -50,21 +55,33 @@ userRouter.post(
   }
 );
 
-userRouter.get("/login", valiadteName, valiadtePassword, async (req, res) => {
-  const validationResults = validationResult(req);
-  if (validationResults.array().length === 0) {
-    const resp = await db.user.create({ data: req.body });
-    res.status(200).json({ data: resp, success: true });
-  } else {
-    res.status(500).json({ message: "can't login", success: false });
+userRouter.get(
+  "/login",
+  validateQueryUserName,
+  validateQueryPassword,
+  async (req, res) => {
+    const validationResults = validationResult(req);
+    if (validationResults.array().length === 0) {
+      const payload = {
+        userName: req.query.UserName,
+      };
+      const token = tokenGenerator(payload);
+      const resp = await db.user.findUnique({
+        where: { UserName: req.query.UserName, Password: req.query.Password },
+      });
+      res.status(200).json({ data: resp, success: true, token: token });
+    } else {
+      res.status(500).json({ message: "can't login", success: false });
+    }
   }
-});
+);
 
 userRouter.put(
   "/update/by-id/:id",
   validateParramId,
-  valiadteName,
-  valiadtePassword,
+  validateBodyUserName,
+  validateBodyPassword,
+  validateBodyName,
   async (req, res) => {
     const validationResults = validationResult(req);
     if (validationResults.array().length === 0) {
@@ -85,6 +102,20 @@ userRouter.delete("/delete/by-id/:id", validateParramId, async (req, res) => {
     res.status(200).json({ data: resp, success: true });
   } else {
     res.status(500).json({ message: "can't delete", success: false });
+  }
+});
+
+userRouter.post("/validateUser", (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    const value = verifyToken(token.split(" ")[1]);
+    if (value) {
+      res.status(200).json({ success: true });
+    } else {
+      res.status(500).json({ success: false });
+    }
+  } catch (e) {
+    res.status(500).json({ success: false });
   }
 });
 

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import db from "../db/db.mjs";
 import {
-  valiadteBodyId,
-  valiadteName,
+  validateBodyId,
+  validateBodyName,
   validateParramId,
 } from "../validators/validators.mjs";
 import { body, validationResult } from "express-validator";
@@ -18,8 +18,8 @@ productRouter.get("/get-all", async (_, res) => {
 
 productRouter.post(
   "/add-product",
-  valiadteBodyId,
-  valiadteName,
+  validateBodyId,
+  validateBodyName,
   async (req, res) => {
     const validationResults = validationResult(req);
     if (validationResults.array().length === 0) {
@@ -45,8 +45,8 @@ productRouter.get("/get-all/by-id/:id", validateParramId, async (req, res) => {
 productRouter.put(
   "/update/by-product-id/:id",
   validateParramId,
-  valiadteName,
-  valiadteBodyId,
+  validateBodyName,
+  validateBodyId,
   async (req, res) => {
     try {
       const validationResults = validationResult(req);
